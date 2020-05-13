@@ -14,59 +14,15 @@ if (!isset($_SESSION['username'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Dashboard - SB Admin</title>
+    <title>Dashboard</title>
     <link href="css/styles.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" crossorigin="anonymous"></script>
-    <script>
-        window.onload = function() {
 
-            var dataPoints = [];
-
-            var chart = new CanvasJS.Chart("chartContainer", {
-                animationEnabled: true,
-                exportEnabled: true,
-                backgroundColor: "rgba(225,150,150,0.0)",
-                // title: {
-                //     text: "Temperature All Day"
-                // },
-                axisX: {
-                    title: "time",
-                    includeZero: false
-                },
-                axisY: {
-                    title: "temp",
-                    includeZero: false
-                },
-                data: [{
-                    type: "line",
-                    toolTipContent: "{y}  °C",
-                    dataPoints: dataPoints
-                }]
-            });
-
-            $.get("check.csv", getDataPointsFromCSV);
-
-            //CSV Format
-            //Year,Volume
-            function getDataPointsFromCSV(csv) {
-                var csvLines = points = [];
-                csvLines = csv.split(/[\r?\n|\r|\n]+/);
-                for (var i = 0; i < csvLines.length; i++) {
-                    if (csvLines[i].length > 0) {
-                        points = csvLines[i].split(",");
-                        dataPoints.push({
-                            label: points[0],
-                            y: parseFloat(points[1])
-                        });
-                    }
-                }
-                chart.render();
-            }
-
-        }
-    </script>
 </head>
+<?php
+
+?>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark nav navbar-nav navbar-right">
@@ -76,18 +32,8 @@ if (!isset($_SESSION['username'])) {
         </button>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" href="#">
-                    Home
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="project.html">
-                    Project
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="about.html">
-                    About
+                <a class="nav-link" href="info.html">
+                    Info
                 </a>
             </li>
             <li class="nav-item">
@@ -104,15 +50,15 @@ if (!isset($_SESSION['username'])) {
                 <div class="sb-sidenav-menu">
                     <div class="nav">
                         <div class="sb-sidenav-menu-heading">Core</div>
-                        <a class="nav-link" href="index.html">
+                        <a class="nav-link" href="index">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
                         </a>
                         <div class="sb-sidenav-menu-heading">Addons</div>
-                        <a class="nav-link" href="charts.html">
+                        <a class="nav-link" href="charts">
                             <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                             Charts
-                        </a><a class="nav-link" href="tables.html">
+                        </a><a class="nav-link" href="tables">
                             <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                             Tables
                         </a>
@@ -136,13 +82,13 @@ if (!isset($_SESSION['username'])) {
                     <div class="row">
                         <div class="col-xl-3 col-md-6">
                             <div class="card bg-primary text-white mb-4">
-                                <div class="card-body">Current Temprature : 29 </div>
+                                <div class="card-body">Current Temprature : <span id="autoCurrent"></span>°C</div>
 
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="card bg-warning text-white mb-4">
-                                <div class="card-body">Average Temprature : 25</div>
+                                <div class="card-body">Average Temprature : <span id="autoAvg"></span></div>
 
                             </div>
                         </div>
@@ -250,54 +196,27 @@ if (!isset($_SESSION['username'])) {
             </footer>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> -->
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
     <script>
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                datasets: [{
-                    label: '# of Votes',
-                    data: [12, 19, 3, 5, 2, 3],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
+        $(document).ready(function() {
+            setInterval(function() {
+                $("#autoCurrent").load('current.php')
+            }, 500);
+        });
+        $(document).ready(function() {
+            setInterval(function() {
+                $("#autoAvg").load('avg.php')
+            }, 500);
         });
     </script>
-    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
-    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="js/scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-    <script src="assets/demo/chart-area-demo.js"></script>
-    <script src="assets/demo/chart-bar-demo.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script> -->
+    <!-- <script src="assets/demo/chart-area-demo.js"></script> -->
+    <!-- <script src="assets/demo/chart-bar-demo.js"></script> -->
     <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
     <script src="assets/demo/datatables-demo.js"></script>
