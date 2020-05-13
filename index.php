@@ -18,14 +18,33 @@ if (!isset($_SESSION['username'])) {
     <link href="css/styles.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" crossorigin="anonymous"></script>
+    <script>
+        function startTime() {
+            var today = new Date();
+            var h = today.getHours();
+            var m = today.getMinutes();
+            var s = today.getSeconds();
+            m = checkTime(m);
+            s = checkTime(s);
+            document.getElementById('currentTime').innerHTML =
+                h + ":" + m + ":" + s;
+            var t = setTimeout(startTime, 500);
+        }
 
+        function checkTime(i) {
+            if (i < 10) {
+                i = "0" + i
+            }; // add zero in front of numbers < 10
+            return i;
+        }
+    </script>
 </head>
 <?php
 
 ?>
 
-<body class="sb-nav-fixed">
-    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark nav navbar-nav navbar-right">
+<body class="sb-nav-fixed" onload="startTime()">
+    <nav class=" sb-topnav navbar navbar-expand navbar-dark bg-dark nav navbar-nav navbar-right">
         <a class="navbar-brand" href="#">Team Origin</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#">
             <i class="fas fa-bars"></i>
@@ -77,7 +96,8 @@ if (!isset($_SESSION['username'])) {
                 <div class="container-fluid">
                     <h1 class="mt-4" style="text-align: center;">Temprature Information</h1>
                     <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item active" style="text-align: center;">Welcome to Dashboard</li>
+                        <li class="breadcrumb-item active">Welcome to Dashboard -- Current Time: <span id="currentTime"></span></li>
+
                     </ol>
                     <div class="row">
                         <div class="col-xl-3 col-md-6">
@@ -94,13 +114,13 @@ if (!isset($_SESSION['username'])) {
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="card bg-success text-white mb-4">
-                                <div class="card-body">Minimum Temprature : 21</div>
+                                <div class="card-body">Minimum Temprature : <span id="autoMin"></span></div>
 
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="card bg-danger text-white mb-4">
-                                <div class="card-body">Maximum Temprature : 30</div>
+                                <div class="card-body">Maximum Temprature : <span id="autoMax"></span></div>
 
                             </div>
                         </div>
@@ -207,6 +227,16 @@ if (!isset($_SESSION['username'])) {
         $(document).ready(function() {
             setInterval(function() {
                 $("#autoAvg").load('avg.php')
+            }, 500);
+        });
+        $(document).ready(function() {
+            setInterval(function() {
+                $("#autoMin").load('min.php')
+            }, 500);
+        });
+        $(document).ready(function() {
+            setInterval(function() {
+                $("#autoMax").load('max.php')
             }, 500);
         });
     </script>
