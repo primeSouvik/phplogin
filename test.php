@@ -2,62 +2,78 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
     <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <style>
+        #chart_div {
+            width: auto;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 </head>
 
 <body>
-    <canvas id="myChart" height="30" width="50"></canvas>
+    <!-- CONTAINER FOR CHART -->
+    <div id="chart_div"></div>
+    <script type="text/javascript" loading="lazy" src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
-        const xlabel = [];
-        const ylabel = [];
-        chartIt();
-        async function chartIt() {
-            await getData();
-            var ctx = document.getElementById('myChart').getContext('2d');
+        // load current chart package
+        google.charts.load("current", {
+            packages: ["corechart", "line"]
+        });
+        // set callback function when api loaded
+        google.charts.setOnLoadCallback(drawChart);
 
-            var myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: xlabel,
-                    datasets: [{
-                        label: 'temprature',
-                        data: ylabel,
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderWidth: 1
-                    }]
+        function drawChart() {
+            // create data object with default value
+            var data = google.visualization.arrayToDataTable([
+                ["Year", "CPU Usage"],
+                [0, 0]
+            ]);
+            // create options object with titles, colors, etc.
+            var options = {
+                title: "Realtime ",
+                hAxis: {
+                    title: "Time"
                 },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
+                vAxis: {
+                    title: "Temp"
                 }
-            });
-        }
-        async function getData() {
-            const response = await fetch('allDay.csv');
-            const data = await response.text();
-            console.log(data);
+            };
+            // draw chart on load
+            var chart = new google.visualization.LineChart(
+                document.getElementById("chart_div")
+            );
+            chart.draw(data, options);
+            // interval for adding new data every 250ms
+            var index = 0;
 
-            const table = data.split('\n');
+            setInterval(function() {
+                // instead of this random, you can make an ajax call for the current cpu usage or what ever data you want to display
+                let random;
+                $.ajax({
+                    url: 'current.php',
+                    async: false,
+                    success: function(data) {
+                        console.log(data);
+                        random = parseInt(data);
+                    }
 
-            table.forEach(row => {
-                const columns = row.split(',');
-                const time = columns[0];
-                xlabel.push(time);
-                const temp = columns[1];
-                ylabel.push(temp);
-                console.log(time, temp);
-            });
+                });
+                console.log(random);
+                data.addRow([index, random]);
+                chart.draw(data, options);
+                index++;
+            }, 1500);
         }
     </script>
-
 </body>
 
 </html>

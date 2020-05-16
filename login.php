@@ -18,10 +18,10 @@ session_start();
             $email = $_POST['email'];
             $password = $_POST['password'];
             if ($email=='admin' && $password=='admin') {
-                echo "seccess";
                 $_SESSION['username'] = $email;
-                header('location:index');
-
+                ?>
+                <script>location.replace('index.php')</script>
+                <?php
             }
         }
     ?>

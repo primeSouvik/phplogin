@@ -18,25 +18,76 @@ if (!isset($_SESSION['username'])) {
     <link href="css/styles.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" crossorigin="anonymous"></script>
-    <script>
-        function startTime() {
-            var today = new Date();
-            var h = today.getHours();
-            var m = today.getMinutes();
-            var s = today.getSeconds();
-            m = checkTime(m);
-            s = checkTime(s);
-            document.getElementById('currentTime').innerHTML =
-                h + ":" + m + ":" + s;
-            var t = setTimeout(startTime, 500);
-        }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="js/myscripts.js?random=<?php echo uniqid(); ?>"></script>
+    <script type="text/javascript" loading="lazy" src="https://www.gstatic.com/charts/loader.js"></script>
 
-        function checkTime(i) {
-            if (i < 10) {
-                i = "0" + i
-            }; // add zero in front of numbers < 10
-            return i;
+    <script>
+        // load current chart package
+        google.charts.load("current", {
+            packages: ["corechart", "line"]
+        });
+        // set callback function when api loaded
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            // create data object with default value
+            var data = google.visualization.arrayToDataTable([
+                ["time", "temp"],
+                [0, 0]
+            ]);
+            // create options object with titles, colors, etc.
+            var options = {
+
+                legend: {
+                    position: 'none'
+                },
+                chartArea: {
+                    // leave room for y-axis labels
+                    width: '80%',
+                    height: '85%',
+                },
+                height: 240,
+                hAxis: {
+                    title: "Time"
+                },
+                curveType: 'function',
+                vAxis: {
+                    title: "Temp"
+                },
+                pointsVisible: false,
+                displayAnnotations: true
+
+            };
+            // draw chart on load
+            var chart = new google.visualization.LineChart(
+                document.getElementById("chart_div")
+            );
+            chart.draw(data, options);
+            // interval for adding new data every 250ms
+            var index = 0;
+
+            setInterval(function() {
+                // instead of this random, you can make an ajax call for the current cpu usage or what ever data you want to display
+                let random;
+                $.ajax({
+                    url: 'current.php',
+                    async: false,
+                    success: function(data) {
+                        console.log(data);
+                        random = parseInt(data);
+                    }
+
+                });
+                console.log(random);
+                data.addRow([index, random]);
+                chart.draw(data, options);
+                index++;
+            }, 1000);
         }
+    </script>
+    <script>
+
     </script>
 </head>
 <?php
@@ -102,44 +153,44 @@ if (!isset($_SESSION['username'])) {
                     <div class="row">
                         <div class="col-xl-3 col-md-6">
                             <div class="card bg-primary text-white mb-4">
-                                <div class="card-body">Current Temprature : <span id="autoCurrent"></span>°C</div>
+                                <div class="card-body">Current Temp : <span id="autoCurrent"></span>°C</div>
 
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="card bg-warning text-white mb-4">
-                                <div class="card-body">Average Temprature : <span id="autoAvg"></span></div>
+                                <div class="card-body">Average Temp : <span id="autoAvg"></span>°C</div>
 
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="card bg-success text-white mb-4">
-                                <div class="card-body">Minimum Temprature : <span id="autoMin"></span></div>
+                                <div class="card-body">Minimum Temp : <span id="autoMin"></span>°C</div>
 
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="card bg-danger text-white mb-4">
-                                <div class="card-body">Maximum Temprature : <span id="autoMax"></span></div>
+                                <div class="card-body">Maximum Temp : <span id="autoMax"></span>°C</div>
 
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-xl-6">
-                            <div class="card mb-4">
+                            <div class="card mb-4" id="screen">
                                 <div class="card-header"><i class="fas fa-chart-area mr-1"></i>All day temp.</div>
-                                <canvas id="myChart" width="400"></canvas>
+                                <canvas id="myChartA"></canvas>
                             </div>
                         </div>
                         <div class="col-xl-6">
-                            <div class="card mb-4">
-                                <div class="card-header"><i class="fas fa-chart-bar mr-1"></i>Bar Chart Example</div>
-                                <canvas id="myAreaChart" width="400"></canvas>
+                            <div class="card mb-4" id="myChartReal">
+                                <div class="card-header"><i class="fas fa-chart-bar mr-1"></i>Real time temp.</div>
+                                <div id="chart_div"></div>
                             </div>
                         </div>
                     </div>
-                    <div class="card mb-4">
+                    <!-- <div class="card mb-4">
                         <div class="card-header"><i class="fas fa-table mr-1"></i>DataTable Example</div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -199,7 +250,7 @@ if (!isset($_SESSION['username'])) {
                                 </table>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </main>
             <footer class="py-4 bg-light mt-auto">
@@ -238,6 +289,12 @@ if (!isset($_SESSION['username'])) {
             setInterval(function() {
                 $("#autoMax").load('max.php')
             }, 500);
+        });
+
+        $(document).ready(function() {
+            setInterval(function() {
+                $("#myChart").load('js/myscripts.js')
+            }, 200);
         });
     </script>
 
